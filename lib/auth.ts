@@ -1,6 +1,9 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
+import { db } from './db';
+import { users } from './db/schema';
+import { eq } from 'drizzle-orm';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key';
 
@@ -10,9 +13,6 @@ export interface User {
   name: string;
   password?: string;
 }
-
-// In-memory user storage (replace with database later)
-export const users: User[] = [];
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 10);
@@ -54,17 +54,26 @@ export async function getCurrentUser(): Promise<User | null> {
   }
 }
 
-export function findUserByEmail(email: string): User | undefined {
-  return users.find(user => user.email === email);
+export async function findUserByEmail(email: string) {
+  try {
+    const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    return result[0] || null;
+  } catch (error) {
+    console.error('Error finding user:', error);
+    return null;
+  }
 }
 
-export function createUser(email: string, password: string, name: string): User {
-  const user: User = {
-    id: Date.now().toString(),
-    email,
-    password,
-    name
-  };
-  users.push(user);
-  return user;
+export async function createUser(email: string, password: string, name: string) {
+  try {
+    const result = await db.insert(users).values({
+      email,
+      password,
+      name,
+    }).returning();
+    return result[0];
+  } catch (error) {
+    console.error('Error creating user:', error);
+    throw error;
+  }
 }
