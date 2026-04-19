@@ -62,7 +62,16 @@ export default function DashboardClient({ user }: { user: User }) {
         return acc;
       }, {} as Record<string, number>);
 
-    return { totalIncome, totalExpenses, balance, expensesByCategory };
+    // Budget bars compare against current-month spending only
+    const currentMonth = new Date().toISOString().slice(0, 7);
+    const currentMonthExpensesByCategory = transactions
+      .filter(t => t.type === 'expense' && t.date.startsWith(currentMonth))
+      .reduce((acc, t) => {
+        acc[t.category] = (acc[t.category] || 0) + t.amount;
+        return acc;
+      }, {} as Record<string, number>);
+
+    return { totalIncome, totalExpenses, balance, expensesByCategory, currentMonthExpensesByCategory };
   }, [transactions]);
 
   useEffect(() => {
@@ -338,12 +347,13 @@ export default function DashboardClient({ user }: { user: User }) {
         {/* Budget & Category Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           <GlassCard delay={0.4} className="p-6">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-6">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-1">
               Budget Overview
             </h2>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-5">Spending vs limit this month</p>
             <div className="space-y-4">
               {budgets.map((budget, index) => {
-                const spent = stats.expensesByCategory[budget.category] || 0;
+                const spent = stats.currentMonthExpensesByCategory[budget.category] || 0;
                 const percentage = budget.limit > 0 ? (spent / budget.limit) * 100 : 0;
                 return (
                   <motion.div

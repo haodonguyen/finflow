@@ -1,11 +1,31 @@
 'use client';
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { DollarSign, TrendingUp, Shield, Sparkles, ArrowRight, Zap, PieChart, Bell, Download } from 'lucide-react';
 import AnimatedBackground from '@/components/AnimatedBackground';
 
 export default function Home() {
+  const router = useRouter();
+  const [demoLoading, setDemoLoading] = useState(false);
+
+  const handleDemo = async () => {
+    setDemoLoading(true);
+    try {
+      const res = await fetch('/api/auth/demo', { method: 'POST' });
+      if (res.ok) {
+        router.push('/dashboard');
+        router.refresh();
+      } else {
+        setDemoLoading(false);
+      }
+    } catch {
+      setDemoLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       <AnimatedBackground />
@@ -65,6 +85,39 @@ export default function Home() {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="flex flex-col sm:flex-row gap-4 justify-center items-center"
             >
+              {/* Primary: Live Demo */}
+              <motion.button
+                whileHover={{ scale: 1.05, boxShadow: '0 20px 40px rgba(139, 92, 246, 0.4)' }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleDemo}
+                disabled={demoLoading}
+                className="group relative px-8 py-4 bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 text-white rounded-2xl font-bold text-lg shadow-xl overflow-hidden disabled:opacity-70"
+              >
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-pink-600 via-purple-600 to-violet-600"
+                  initial={{ x: '100%' }}
+                  whileHover={{ x: 0 }}
+                  transition={{ duration: 0.3 }}
+                />
+                <span className="relative z-10 flex items-center gap-2">
+                  {demoLoading ? (
+                    <>
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+                        className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                      />
+                      Loading…
+                    </>
+                  ) : (
+                    <>
+                      <Zap size={20} />
+                      Live Demo
+                    </>
+                  )}
+                </span>
+              </motion.button>
+
               <Link href="/register">
                 <motion.button
                   whileHover={{ scale: 1.05, boxShadow: '0 20px 40px rgba(59, 130, 246, 0.3)' }}
