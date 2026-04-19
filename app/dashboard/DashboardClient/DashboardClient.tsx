@@ -35,6 +35,7 @@ export default function DashboardClient({ user }: { user: User }) {
   );
   const [showAddForm, setShowAddForm] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true);
   const [formData, setFormData] = useState({
     type: 'expense' as 'income' | 'expense',
     amount: '',
@@ -47,13 +48,13 @@ export default function DashboardClient({ user }: { user: User }) {
     const totalIncome = transactions
       .filter(t => t.type === 'income')
       .reduce((sum, t) => sum + t.amount, 0);
-    
+
     const totalExpenses = transactions
       .filter(t => t.type === 'expense')
       .reduce((sum, t) => sum + t.amount, 0);
-    
+
     const balance = totalIncome - totalExpenses;
-    
+
     const expensesByCategory = transactions
       .filter(t => t.type === 'expense')
       .reduce((acc, t) => {
@@ -64,6 +65,37 @@ export default function DashboardClient({ user }: { user: User }) {
     return { totalIncome, totalExpenses, balance, expensesByCategory };
   }, [transactions]);
 
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [txRes, budgetRes] = await Promise.all([
+          fetch('/api/transactions'),
+          fetch('/api/budgets'),
+        ]);
+
+        if (txRes.ok) {
+          const data: Transaction[] = await txRes.json();
+          setTransactions(data);
+        }
+
+        if (budgetRes.ok) {
+          const dbBudgets: Array<{ category: string; limit: number }> = await budgetRes.json();
+          setBudgets(prev =>
+            prev.map(b => {
+              const db = dbBudgets.find(d => d.category === b.category);
+              return db ? { category: b.category, limit: db.limit } : b;
+            })
+          );
+        }
+      } catch {
+        toast.error('Failed to load data');
+      } finally {
+        setDataLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
     toast.success('Logged out successfully!');
@@ -71,51 +103,94 @@ export default function DashboardClient({ user }: { user: User }) {
     router.refresh();
   };
 
-  const handleAddTransaction = () => {
+  const handleAddTransaction = async () => {
     if (!formData.amount || !formData.description) {
       toast.error('Please fill all fields');
       return;
     }
-    
+
+    const parsedAmount = parseFloat(formData.amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      toast.error('Amount must be a positive number');
+      return;
+    }
+
     setLoading(true);
-    
-    const newTransaction: Transaction = {
-      id: Date.now().toString(),
-      type: formData.type,
-      amount: parseFloat(formData.amount),
-      category: formData.category,
-      description: formData.description,
-      date: formData.date
-    };
-    
-    setTimeout(() => {
-      setTransactions([newTransaction, ...transactions]);
+    try {
+      const res = await fetch('/api/transactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: formData.type,
+          amount: parsedAmount,
+          category: formData.category,
+          description: formData.description,
+          date: formData.date,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        toast.error(err.error || 'Failed to add transaction');
+        return;
+      }
+
+      const newTransaction: Transaction = await res.json();
+      setTransactions(prev => [newTransaction, ...prev]);
       setFormData({
         type: 'expense',
         amount: '',
         category: EXPENSE_CATEGORIES[0],
         description: '',
-        date: new Date().toISOString().split('T')[0]
+        date: new Date().toISOString().split('T')[0],
       });
       setShowAddForm(false);
-      setLoading(false);
       toast.success(`${formData.type === 'income' ? 'Income' : 'Expense'} added successfully!`);
-    }, 500);
+    } catch {
+      toast.error('Failed to add transaction');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDeleteTransaction = (id: string) => {
-    setTransactions(transactions.filter(t => t.id !== id));
-    toast.success('Transaction deleted');
+  const handleDeleteTransaction = async (id: string) => {
+    try {
+      const res = await fetch(`/api/transactions/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        toast.error('Failed to delete transaction');
+        return;
+      }
+      setTransactions(prev => prev.filter(t => t.id !== id));
+      toast.success('Transaction deleted');
+    } catch {
+      toast.error('Failed to delete transaction');
+    }
   };
 
   const updateBudget = (category: string, limit: number) => {
-    setBudgets(budgets.map(b => 
+    setBudgets(budgets.map(b =>
       b.category === category ? { ...b, limit } : b
     ));
-    toast.success(`Budget updated for ${category}`);
+  };
+
+  const saveBudget = async (category: string, limit: number) => {
+    try {
+      const res = await fetch('/api/budgets', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ category, limit }),
+      });
+      if (res.ok && limit > 0) toast.success(`Budget updated for ${category}`);
+    } catch {
+      toast.error('Failed to save budget');
+    }
   };
 
   const exportToCSV = () => {
+    if (transactions.length === 0) {
+      toast.error('No transactions to export');
+      return;
+    }
     const csv = [
       ['Date', 'Type', 'Category', 'Description', 'Amount'],
       ...transactions.map(t => [
@@ -140,16 +215,16 @@ export default function DashboardClient({ user }: { user: User }) {
     <div className="min-h-screen relative">
       <Toaster position="top-right" />
       <AnimatedBackground />
-      
+
       <div className="max-w-7xl mx-auto p-4 md:p-8 relative z-10">
         {/* Header */}
-        <motion.header 
+        <motion.header
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8 flex justify-between items-center"
         >
           <div>
-            <motion.h1 
+            <motion.h1
               className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -214,7 +289,7 @@ export default function DashboardClient({ user }: { user: User }) {
               </motion.div>
             </div>
           </GlassCard>
-          
+
           <GlassCard delay={0.2} className="p-6 relative overflow-hidden">
             <motion.div
               className="absolute inset-0 bg-gradient-to-br from-red-400/10 to-pink-400/10"
@@ -236,7 +311,7 @@ export default function DashboardClient({ user }: { user: User }) {
               </motion.div>
             </div>
           </GlassCard>
-          
+
           <GlassCard delay={0.3} className="p-6 relative overflow-hidden">
             <motion.div
               className="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-purple-400/10"
@@ -286,6 +361,7 @@ export default function DashboardClient({ user }: { user: User }) {
                         placeholder="Set limit"
                         value={budget.limit || ''}
                         onChange={(e) => updateBudget(budget.category, parseFloat(e.target.value) || 0)}
+                        onBlur={(e) => saveBudget(budget.category, parseFloat(e.target.value) || 0)}
                         className="w-24 px-3 py-1 text-sm border-2 border-gray-200 dark:border-gray-600 rounded-lg bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
                       />
                     </div>
@@ -297,16 +373,19 @@ export default function DashboardClient({ user }: { user: User }) {
                             animate={{ width: `${Math.min(percentage, 100)}%` }}
                             transition={{ duration: 1, ease: "easeOut" }}
                             className={`h-3 rounded-full ${
-                              percentage > 100 
-                                ? 'bg-gradient-to-r from-red-500 to-red-600' 
-                                : percentage > 80 
-                                ? 'bg-gradient-to-r from-yellow-500 to-orange-500' 
+                              percentage > 100
+                                ? 'bg-gradient-to-r from-red-500 to-red-600'
+                                : percentage > 80
+                                ? 'bg-gradient-to-r from-yellow-500 to-orange-500'
                                 : 'bg-gradient-to-r from-green-500 to-emerald-500'
                             }`}
                           />
                         </div>
                         <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                           ${spent.toFixed(2)} / ${budget.limit.toFixed(2)} ({percentage.toFixed(0)}%)
+                          {percentage > 100 && (
+                            <span className="ml-2 text-red-500 font-semibold">⚠ Over budget!</span>
+                          )}
                         </p>
                       </>
                     )}
@@ -397,6 +476,7 @@ export default function DashboardClient({ user }: { user: User }) {
                       <input
                         type="number"
                         step="0.01"
+                        min="0.01"
                         value={formData.amount}
                         onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                         className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
@@ -449,7 +529,7 @@ export default function DashboardClient({ user }: { user: User }) {
                       disabled={loading}
                       className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition disabled:opacity-50"
                     >
-                      {loading ? 'Adding...' : 'Add Transaction'}
+                      {loading ? 'Saving...' : 'Add Transaction'}
                     </motion.button>
                     <motion.button
                       whileHover={{ scale: 1.02 }}
@@ -467,54 +547,62 @@ export default function DashboardClient({ user }: { user: User }) {
 
           {/* Transaction List */}
           <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
-            <AnimatePresence>
-              {transactions.map((transaction, index) => (
-                <motion.div
-                  key={transaction.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  transition={{ delay: index * 0.05 }}
-                  whileHover={{ scale: 1.01 }}
-                  className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-gray-50/80 to-blue-50/80 dark:from-gray-800/80 dark:to-blue-900/80 backdrop-blur-sm border border-white/20 shadow-sm hover:shadow-md transition"
-                >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-1">
-                      <span className={`px-3 py-1 text-xs font-bold rounded-full ${
-                        transaction.type === 'income' 
-                          ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white' 
-                          : 'bg-gradient-to-r from-red-400 to-pink-500 text-white'
-                      }`}>
-                        {transaction.type}
-                      </span>
-                      <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
-                        {transaction.category}
-                      </span>
+            {dataLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="h-20 rounded-xl bg-gray-200/60 dark:bg-gray-700/60 animate-pulse" />
+                ))}
+              </div>
+            ) : (
+              <AnimatePresence>
+                {transactions.map((transaction, index) => (
+                  <motion.div
+                    key={transaction.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ delay: index * 0.05 }}
+                    whileHover={{ scale: 1.01 }}
+                    className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-gray-50/80 to-blue-50/80 dark:from-gray-800/80 dark:to-blue-900/80 backdrop-blur-sm border border-white/20 shadow-sm hover:shadow-md transition"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-1">
+                        <span className={`px-3 py-1 text-xs font-bold rounded-full ${
+                          transaction.type === 'income'
+                            ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white'
+                            : 'bg-gradient-to-r from-red-400 to-pink-500 text-white'
+                        }`}>
+                          {transaction.type}
+                        </span>
+                        <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
+                          {transaction.category}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{transaction.description}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                        {new Date(transaction.date + 'T12:00:00').toLocaleDateString()}
+                      </p>
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{transaction.description}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                      {new Date(transaction.date).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className={`text-xl font-bold ${
-                      transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
-                    </span>
-                    <motion.button
-                      whileHover={{ scale: 1.1, rotate: 10 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => handleDeleteTransaction(transaction.id)}
-                      className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition"
-                    >
-                      <Trash2 size={18} />
-                    </motion.button>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-            {transactions.length === 0 && (
+                    <div className="flex items-center gap-4">
+                      <span className={`text-xl font-bold ${
+                        transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
+                      </span>
+                      <motion.button
+                        whileHover={{ scale: 1.1, rotate: 10 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => handleDeleteTransaction(transaction.id)}
+                        className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition"
+                      >
+                        <Trash2 size={18} />
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            )}
+            {!dataLoading && transactions.length === 0 && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}

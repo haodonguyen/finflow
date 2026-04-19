@@ -1,9 +1,15 @@
 import { NextResponse } from 'next/server';
+import { getCurrentUser } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { desc } from 'drizzle-orm';
 
 export async function GET() {
+  const currentUser = await getCurrentUser();
+  if (!currentUser) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const allUsers = await db.select({
       id: users.id,
@@ -18,7 +24,6 @@ export async function GET() {
       users: allUsers,
     });
   } catch (error) {
-    console.error('Error fetching users:', error);
     return NextResponse.json(
       {
         success: false,
@@ -28,4 +33,3 @@ export async function GET() {
     );
   }
 }
-

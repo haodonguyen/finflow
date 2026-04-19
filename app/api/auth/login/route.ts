@@ -3,7 +3,9 @@ import { findUserByEmail, generateToken, verifyPassword } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
+    const body = await request.json();
+    const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
+    const { password } = body;
 
     // Validation
     if (!email || !password) {
