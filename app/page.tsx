@@ -4,8 +4,18 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { DollarSign, TrendingUp, Shield, Sparkles, ArrowRight, Zap, PieChart, Bell, Download } from 'lucide-react';
+import {
+  ArrowUpRight,
+  Wallet,
+  LineChart,
+  Target,
+  ShieldCheck,
+  BellRing,
+  ArrowDownToLine,
+} from 'lucide-react';
 import AnimatedBackground from '@/components/AnimatedBackground';
+
+const fluid = [0.32, 0.72, 0, 1] as const;
 
 export default function Home() {
   const router = useRouter();
@@ -27,391 +37,277 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="relative min-h-[100dvh] overflow-hidden">
       <AnimatedBackground />
-      
-      <div className="relative z-10">
-        {/* Hero Section */}
-        <section className="min-h-screen flex items-center justify-center px-4 py-20">
-          <div className="max-w-6xl mx-auto text-center">
-            {/* Floating Badge */}
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 backdrop-blur-sm mb-8"
-            >
-              <Sparkles className="text-yellow-500" size={16} />
-              <span className="text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Your Financial Journey Starts Here
-              </span>
-            </motion.div>
 
-            {/* Main Headline */}
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-6xl md:text-8xl font-bold mb-6"
-            >
-              <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                FinFlow
-              </span>
-            </motion.h1>
+      {/* ---- Floating glass island nav ---- */}
+      <header className="fixed inset-x-0 top-0 z-50 flex justify-center">
+        <motion.nav
+          initial={{ opacity: 0, y: -24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: fluid }}
+          className="mt-6 flex w-[min(92%,46rem)] items-center justify-between rounded-full border border-hairline bg-white/[0.04] px-3 py-2 backdrop-blur-2xl ambient"
+        >
+          <Link href="/" className="flex items-center gap-2.5 pl-2">
+            <span className="grid h-7 w-7 place-items-center rounded-full bg-accent/15 ring-1 ring-accent/30">
+              <Wallet size={15} strokeWidth={1.6} className="text-accent" />
+            </span>
+            <span className="font-display text-[15px] font-semibold tracking-tight text-text">
+              FinFlow
+            </span>
+          </Link>
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-2xl md:text-3xl text-gray-700 dark:text-gray-300 mb-4 font-light"
-            >
-              Your finances, flowing smoothly
-            </motion.p>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-lg md:text-xl text-gray-600 dark:text-gray-400 mb-12 max-w-2xl mx-auto"
-            >
-              Take control of your financial future with intelligent budgeting, 
-              real-time tracking, and beautiful visualizations
-            </motion.p>
-
-            {/* CTA Buttons */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-            >
-              {/* Primary: Live Demo */}
-              <motion.button
-                whileHover={{ scale: 1.05, boxShadow: '0 20px 40px rgba(139, 92, 246, 0.4)' }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleDemo}
-                disabled={demoLoading}
-                className="group relative px-8 py-4 bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 text-white rounded-2xl font-bold text-lg shadow-xl overflow-hidden disabled:opacity-70"
-              >
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-pink-600 via-purple-600 to-violet-600"
-                  initial={{ x: '100%' }}
-                  whileHover={{ x: 0 }}
-                  transition={{ duration: 0.3 }}
-                />
-                <span className="relative z-10 flex items-center gap-2">
-                  {demoLoading ? (
-                    <>
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
-                        className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
-                      />
-                      Loading…
-                    </>
-                  ) : (
-                    <>
-                      <Zap size={20} />
-                      Live Demo
-                    </>
-                  )}
-                </span>
-              </motion.button>
-
-              <Link href="/register">
-                <motion.button
-                  whileHover={{ scale: 1.05, boxShadow: '0 20px 40px rgba(59, 130, 246, 0.3)' }}
-                  whileTap={{ scale: 0.95 }}
-                  className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl font-semibold text-lg shadow-xl overflow-hidden"
-                >
-                  <span className="relative z-10 flex items-center gap-2">
-                    Get Started Free
-                    <ArrowRight className="group-hover:translate-x-1 transition-transform" size={20} />
-                  </span>
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600"
-                    initial={{ x: '100%' }}
-                    whileHover={{ x: 0 }}
-                    transition={{ duration: 0.3 }}
-                  />
-                </motion.button>
-              </Link>
-
-              <Link href="/login">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-8 py-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-800 dark:text-white rounded-2xl font-semibold text-lg border-2 border-gray-200 dark:border-gray-700 hover:border-blue-500 transition shadow-lg"
-                >
-                  Sign In
-                </motion.button>
-              </Link>
-            </motion.div>
-
-            {/* Trust Indicators */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-              className="mt-12 flex flex-wrap justify-center gap-8 text-sm text-gray-600 dark:text-gray-400"
-            >
-              <div className="flex items-center gap-2">
-                <Shield className="text-green-500" size={16} />
-                <span>Bank-level security</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Zap className="text-yellow-500" size={16} />
-                <span>Lightning fast</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Sparkles className="text-purple-500" size={16} />
-                <span>Free forever</span>
-              </div>
-            </motion.div>
+          <div className="hidden items-center gap-7 text-[13px] text-text-muted sm:flex">
+            <a href="#features" className="transition-colors duration-300 hover:text-text">Features</a>
+            <a href="#security" className="transition-colors duration-300 hover:text-text">Security</a>
+            <Link href="/login" className="transition-colors duration-300 hover:text-text">Sign in</Link>
           </div>
-        </section>
 
-        {/* Features Section */}
-        <section className="py-20 px-4">
-          <div className="max-w-6xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center mb-16"
-            >
-              <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Everything you need to thrive
-              </h2>
-              <p className="text-xl text-gray-600 dark:text-gray-400">
-                Powerful features designed for modern money management
-              </p>
-            </motion.div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Feature 1 */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-                whileHover={{ y: -10, transition: { duration: 0.2 } }}
-                className="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-xl hover:shadow-2xl transition-all"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative">
-                  <motion.div
-                    whileHover={{ rotate: 360 }}
-                    transition={{ duration: 0.6 }}
-                    className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg"
-                  >
-                    <DollarSign className="text-white" size={32} />
-                  </motion.div>
-                  <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-3">
-                    Smart Tracking
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                    Automatically categorize expenses and track every dollar with intelligent insights and real-time updates.
-                  </p>
-                </div>
-              </motion.div>
-
-              {/* Feature 2 */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-                whileHover={{ y: -10, transition: { duration: 0.2 } }}
-                className="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-xl hover:shadow-2xl transition-all"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative">
-                  <motion.div
-                    whileHover={{ rotate: 360 }}
-                    transition={{ duration: 0.6 }}
-                    className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg"
-                  >
-                    <TrendingUp className="text-white" size={32} />
-                  </motion.div>
-                  <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-3">
-                    Budget Goals
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                    Set personalized budgets, track progress in real-time, and get alerts before overspending.
-                  </p>
-                </div>
-              </motion.div>
-
-              {/* Feature 3 */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.3 }}
-                whileHover={{ y: -10, transition: { duration: 0.2 } }}
-                className="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-xl hover:shadow-2xl transition-all"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative">
-                  <motion.div
-                    whileHover={{ rotate: 360 }}
-                    transition={{ duration: 0.6 }}
-                    className="w-16 h-16 bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg"
-                  >
-                    <PieChart className="text-white" size={32} />
-                  </motion.div>
-                  <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-3">
-                    Visual Insights
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                    Beautiful charts and graphs that make understanding your finances effortless and engaging.
-                  </p>
-                </div>
-              </motion.div>
-
-              {/* Feature 4 */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.4 }}
-                whileHover={{ y: -10, transition: { duration: 0.2 } }}
-                className="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-xl hover:shadow-2xl transition-all"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative">
-                  <motion.div
-                    whileHover={{ rotate: 360 }}
-                    transition={{ duration: 0.6 }}
-                    className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg"
-                  >
-                    <Shield className="text-white" size={32} />
-                  </motion.div>
-                  <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-3">
-                    Bank-Level Security
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                    Your data is encrypted and secure with industry-standard JWT authentication and protection.
-                  </p>
-                </div>
-              </motion.div>
-
-              {/* Feature 5 */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.5 }}
-                whileHover={{ y: -10, transition: { duration: 0.2 } }}
-                className="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-xl hover:shadow-2xl transition-all"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative">
-                  <motion.div
-                    whileHover={{ rotate: 360 }}
-                    transition={{ duration: 0.6 }}
-                    className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg"
-                  >
-                    <Bell className="text-white" size={32} />
-                  </motion.div>
-                  <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-3">
-                    Smart Alerts
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                    Get notified when you're close to budget limits or when unusual spending is detected.
-                  </p>
-                </div>
-              </motion.div>
-
-              {/* Feature 6 */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.6 }}
-                whileHover={{ y: -10, transition: { duration: 0.2 } }}
-                className="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-xl hover:shadow-2xl transition-all"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative">
-                  <motion.div
-                    whileHover={{ rotate: 360 }}
-                    transition={{ duration: 0.6 }}
-                    className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg"
-                  >
-                    <Download className="text-white" size={32} />
-                  </motion.div>
-                  <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-3">
-                    Export Anywhere
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                    Download your financial data as CSV anytime for tax season or personal records.
-                  </p>
-                </div>
-              </motion.div>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="py-20 px-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="max-w-4xl mx-auto"
+          <Link
+            href="/register"
+            className="group flex items-center gap-2 rounded-full bg-text py-2 pl-4 pr-2 text-[13px] font-semibold text-bg transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.97]"
           >
-            <div className="relative bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 rounded-3xl p-12 overflow-hidden shadow-2xl">
-              {/* Animated background pattern */}
-              <div className="absolute inset-0 opacity-20">
-                <div className="absolute inset-0" style={{
-                  backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
-                  backgroundSize: '40px 40px'
-                }} />
-              </div>
+            Get started
+            <span className="grid h-6 w-6 place-items-center rounded-full bg-bg/10 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+              <ArrowUpRight size={14} strokeWidth={2} />
+            </span>
+          </Link>
+        </motion.nav>
+      </header>
 
-              <div className="relative z-10 text-center text-white">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                  className="inline-block mb-6"
-                >
-                  <Sparkles size={48} />
-                </motion.div>
+      <main className="relative z-10">
+        {/* ---- Hero ---- */}
+        <section className="mx-auto flex min-h-[100dvh] max-w-6xl flex-col items-center justify-center px-4 pb-24 pt-40 text-center sm:px-6">
+          <motion.span
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: fluid }}
+            className="eyebrow mb-8 inline-flex items-center gap-2 rounded-full border border-hairline bg-white/[0.03] px-3 py-1.5 text-text-muted"
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-accent shadow-[0_0_10px_var(--accent)]" />
+            Personal finance, refined
+          </motion.span>
 
-                <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                  Ready to take control?
+          <motion.h1
+            initial={{ opacity: 0, y: 28, filter: 'blur(10px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            transition={{ duration: 0.9, delay: 0.05, ease: fluid }}
+            className="font-display text-[clamp(2.9rem,9vw,6.5rem)] font-semibold leading-[0.95] tracking-tight text-text"
+          >
+            Money that
+            <br />
+            <span className="text-text-muted">moves with</span>{' '}
+            <span className="bg-gradient-to-b from-accent-soft to-accent bg-clip-text text-transparent">
+              clarity
+            </span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: fluid }}
+            className="mt-7 max-w-xl text-base leading-relaxed text-text-soft sm:text-lg"
+          >
+            Track every dollar, set budgets that hold, and read your finances at a
+            glance — in an interface designed to stay out of your way.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.32, ease: fluid }}
+            className="mt-11 flex flex-col items-center gap-3.5 sm:flex-row"
+          >
+            <button
+              onClick={handleDemo}
+              disabled={demoLoading}
+              className="group flex w-full items-center justify-center gap-2.5 rounded-full bg-accent py-3.5 pl-6 pr-3 font-semibold text-bg transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:shadow-[0_18px_50px_-12px_var(--accent-glow)] active:scale-[0.98] disabled:opacity-70 sm:w-auto"
+            >
+              {demoLoading ? 'Preparing demo…' : 'Try the live demo'}
+              <span className="grid h-7 w-7 place-items-center rounded-full bg-bg/15 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                {demoLoading ? (
+                  <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-bg/30 border-t-bg" />
+                ) : (
+                  <ArrowUpRight size={15} strokeWidth={2} />
+                )}
+              </span>
+            </button>
+
+            <Link
+              href="/register"
+              className="flex w-full items-center justify-center rounded-full border border-hairline-strong bg-white/[0.03] px-7 py-3.5 font-medium text-text-soft transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-white/25 hover:bg-white/[0.06] active:scale-[0.98] sm:w-auto"
+            >
+              Create free account
+            </Link>
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="mt-6 text-xs text-text-faint"
+          >
+            No card required · 3 months of demo data pre-loaded
+          </motion.p>
+        </section>
+
+        {/* ---- Features bento ---- */}
+        <section id="features" className="mx-auto max-w-6xl px-4 py-28 sm:px-6">
+          <div className="mb-16 max-w-2xl">
+            <span className="eyebrow text-accent">What you get</span>
+            <h2 className="mt-4 font-display text-[clamp(2rem,5vw,3.4rem)] font-semibold leading-[1.02] tracking-tight text-text">
+              Built for people who
+              <br className="hidden sm:block" /> actually check their money
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-6 md:auto-rows-[minmax(0,1fr)]">
+            <Feature
+              className="md:col-span-4 md:row-span-2"
+              big
+              icon={LineChart}
+              title="See everything at a glance"
+              body="Income, spending and balance resolve into one calm dashboard. No noise, no rainbow charts — just the numbers that matter, rendered with precision."
+              delay={0}
+            />
+            <Feature
+              className="md:col-span-2"
+              icon={Wallet}
+              title="Effortless tracking"
+              body="Log a transaction in seconds and watch it land instantly."
+              delay={0.05}
+            />
+            <Feature
+              className="md:col-span-2"
+              icon={Target}
+              title="Budgets that hold"
+              body="Set monthly limits per category and get a quiet nudge before you cross them."
+              delay={0.1}
+            />
+            <Feature
+              id="security"
+              className="md:col-span-2"
+              icon={ShieldCheck}
+              title="Private by design"
+              body="JWT auth, encrypted sessions, your data stays yours."
+              delay={0.15}
+            />
+            <Feature
+              className="md:col-span-2"
+              icon={BellRing}
+              title="Smart alerts"
+              body="Know the moment a category drifts past its limit."
+              delay={0.2}
+            />
+            <Feature
+              className="md:col-span-2"
+              icon={ArrowDownToLine}
+              title="Export anytime"
+              body="One click to a clean CSV — for taxes or your own records."
+              delay={0.25}
+            />
+          </div>
+        </section>
+
+        {/* ---- Closing CTA ---- */}
+        <section className="mx-auto max-w-6xl px-4 pb-32 sm:px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 40, filter: 'blur(8px)' }}
+            whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.9, ease: fluid }}
+            className="bezel-shell"
+          >
+            <div className="bezel-core relative overflow-hidden px-8 py-20 text-center sm:px-12">
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{ background: 'radial-gradient(ellipse 60% 80% at 50% 0%, var(--accent-glow), transparent 70%)' }}
+              />
+              <div className="relative">
+                <h2 className="font-display text-[clamp(2.1rem,6vw,4rem)] font-semibold leading-[1] tracking-tight text-text">
+                  Take control today
                 </h2>
-                <p className="text-xl mb-8 opacity-90">
-                  Join thousands of users who are successfully managing their money with FinFlow
+                <p className="mx-auto mt-5 max-w-md text-text-muted">
+                  Start with the demo or open a free account. It takes less than a
+                  minute either way.
                 </p>
-
-                <Link href="/register">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="px-10 py-5 bg-white text-purple-600 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transition"
+                <div className="mt-10 flex flex-col items-center justify-center gap-3.5 sm:flex-row">
+                  <Link
+                    href="/register"
+                    className="group flex w-full items-center justify-center gap-2.5 rounded-full bg-text py-3.5 pl-6 pr-3 font-semibold text-bg transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98] sm:w-auto"
                   >
-                    Start Your Journey Free
-                  </motion.button>
-                </Link>
-
-                <p className="mt-6 text-sm opacity-75">
-                  No credit card required • Free forever • Cancel anytime
-                </p>
+                    Start your journey
+                    <span className="grid h-7 w-7 place-items-center rounded-full bg-bg/10 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                      <ArrowUpRight size={15} strokeWidth={2} />
+                    </span>
+                  </Link>
+                  <button
+                    onClick={handleDemo}
+                    disabled={demoLoading}
+                    className="w-full rounded-full border border-hairline-strong bg-white/[0.03] px-7 py-3.5 font-medium text-text-soft transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-white/25 hover:bg-white/[0.06] active:scale-[0.98] disabled:opacity-70 sm:w-auto"
+                  >
+                    {demoLoading ? 'Preparing…' : 'Explore the demo'}
+                  </button>
+                </div>
               </div>
             </div>
           </motion.div>
         </section>
 
-        {/* Footer */}
-        <footer className="py-8 px-4 text-center text-gray-600 dark:text-gray-400">
-          <p className="text-sm">
-            © 2025 FinFlow. Made with ❤️ for better financial futures.
-          </p>
+        <footer className="border-t border-hairline">
+          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-10 text-sm text-text-faint sm:flex-row sm:px-6">
+            <div className="flex items-center gap-2.5">
+              <span className="grid h-6 w-6 place-items-center rounded-full bg-accent/15 ring-1 ring-accent/30">
+                <Wallet size={13} strokeWidth={1.6} className="text-accent" />
+              </span>
+              <span className="font-display font-medium text-text-soft">FinFlow</span>
+            </div>
+            <p>© {new Date().getFullYear()} FinFlow. Designed for clearer money.</p>
+          </div>
         </footer>
-      </div>
+      </main>
     </div>
+  );
+}
+
+/* ---------- Feature card (double-bezel) ---------- */
+function Feature({
+  icon: Icon,
+  title,
+  body,
+  className = '',
+  big = false,
+  delay = 0,
+  id,
+}: {
+  icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>;
+  title: string;
+  body: string;
+  className?: string;
+  big?: boolean;
+  delay?: number;
+  id?: string;
+}) {
+  return (
+    <motion.div
+      id={id}
+      initial={{ opacity: 0, y: 28, filter: 'blur(8px)' }}
+      whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+      viewport={{ once: true, margin: '-50px' }}
+      transition={{ duration: 0.8, delay, ease: fluid }}
+      className={`group bezel-shell ${className}`}
+    >
+      <div className="bezel-core flex h-full flex-col p-7 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:-translate-y-1">
+        <span className="grid h-11 w-11 place-items-center rounded-2xl border border-hairline bg-white/[0.04] text-accent transition-colors duration-500 group-hover:border-accent/40">
+          <Icon size={big ? 22 : 19} strokeWidth={1.5} />
+        </span>
+        <h3 className={`mt-auto pt-8 font-display font-semibold tracking-tight text-text ${big ? 'text-2xl' : 'text-lg'}`}>
+          {title}
+        </h3>
+        <p className={`mt-2.5 leading-relaxed text-text-muted ${big ? 'text-[15px] max-w-md' : 'text-sm'}`}>
+          {body}
+        </p>
+      </div>
+    </motion.div>
   );
 }

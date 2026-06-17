@@ -4,8 +4,10 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { LogIn, Sparkles, Zap } from 'lucide-react';
+import { ArrowUpRight, Wallet } from 'lucide-react';
 import AnimatedBackground from '@/components/AnimatedBackground';
+
+const fluid = [0.32, 0.72, 0, 1] as const;
 
 export default function LoginPage() {
   const router = useRouter();
@@ -56,151 +58,138 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center p-4">
+    <div className="relative flex min-h-[100dvh] items-center justify-center px-4 py-12">
       <AnimatedBackground />
 
       <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        initial={{ opacity: 0, y: 28, filter: 'blur(8px)' }}
+        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+        transition={{ duration: 0.8, ease: fluid }}
         className="relative z-10 w-full max-w-md"
       >
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <motion.h1
-            className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            FinFlow
-          </motion.h1>
-          <motion.p
-            className="text-gray-500 dark:text-gray-400 mt-1 text-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-          >
-            Your finances, flowing smoothly
-          </motion.p>
-        </div>
+        {/* Wordmark */}
+        <Link href="/" className="mb-8 flex flex-col items-center gap-3">
+          <span className="grid h-11 w-11 place-items-center rounded-2xl border border-accent/30 bg-accent/15">
+            <Wallet size={20} strokeWidth={1.6} className="text-accent" />
+          </span>
+          <div className="text-center">
+            <h1 className="font-display text-2xl font-semibold tracking-tight text-text">
+              Welcome back
+            </h1>
+            <p className="mt-1 text-sm text-text-muted">Sign in to continue to FinFlow</p>
+          </div>
+        </Link>
 
-        <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/30 p-8">
-          {/* Live Demo Banner */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="mb-6"
-          >
-            <div className="text-center mb-3">
-              <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400">
-                <Sparkles size={12} />
-                Portfolio Demo
-              </span>
-            </div>
-            <motion.button
-              whileHover={{ scale: 1.02, boxShadow: '0 16px 40px rgba(139, 92, 246, 0.35)' }}
-              whileTap={{ scale: 0.98 }}
+        <div className="bezel-shell">
+          <div className="bezel-core p-7 sm:p-8">
+            {/* Demo */}
+            <button
               onClick={handleDemo}
               disabled={demoLoading || loading}
-              className="w-full relative overflow-hidden flex items-center justify-center gap-3 bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg disabled:opacity-60 transition-all"
+              className="group flex w-full items-center justify-between gap-3 rounded-2xl border border-accent/25 bg-accent/[0.08] px-5 py-4 text-left transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-accent/45 hover:bg-accent/[0.12] active:scale-[0.99] disabled:opacity-60"
             >
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-pink-600 via-purple-600 to-violet-600"
-                initial={{ x: '100%' }}
-                whileHover={{ x: 0 }}
-                transition={{ duration: 0.4 }}
-              />
-              <span className="relative z-10 flex items-center gap-3">
+              <span>
+                <span className="block text-sm font-semibold text-text">
+                  {demoLoading ? 'Preparing demo…' : 'Try the live demo'}
+                </span>
+                <span className="block text-xs text-text-muted">
+                  No sign-up · 3 months of sample data
+                </span>
+              </span>
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-accent text-bg transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
                 {demoLoading ? (
-                  <>
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
-                      className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
-                    />
-                    Loading demo data…
-                  </>
+                  <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-bg/30 border-t-bg" />
                 ) : (
-                  <>
-                    <Zap size={20} />
-                    Try Live Demo — No Sign-up Needed
-                  </>
+                  <ArrowUpRight size={15} strokeWidth={2} />
                 )}
               </span>
-            </motion.button>
-            <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-2">
-              Pre-filled with 3 months of realistic data
-            </p>
-          </motion.div>
+            </button>
 
-          {/* Divider */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
-            <span className="text-xs text-gray-400 font-medium">or sign in</span>
-            <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
-          </div>
+            {/* Divider */}
+            <div className="my-6 flex items-center gap-3">
+              <span className="h-px flex-1 bg-hairline" />
+              <span className="eyebrow text-text-faint">or sign in</span>
+              <span className="h-px flex-1 bg-hairline" />
+            </div>
 
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl mb-4 text-sm"
-            >
-              {error}
-            </motion.div>
-          )}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-5 rounded-xl border border-negative/30 bg-negative/10 px-4 py-3 text-sm text-negative"
+              >
+                {error}
+              </motion.div>
+            )}
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1.5">
-                Email
-              </label>
-              <input
+            <div className="space-y-4">
+              <Field
+                label="Email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-                className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-white/80 dark:bg-gray-800/80 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-900 transition outline-none"
-                placeholder="your@email.com"
+                onChange={setEmail}
+                onEnter={handleSubmit}
+                placeholder="you@email.com"
               />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1.5">
-                Password
-              </label>
-              <input
+              <Field
+                label="Password"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-                className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-white/80 dark:bg-gray-800/80 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-900 transition outline-none"
+                onChange={setPassword}
+                onEnter={handleSubmit}
                 placeholder="••••••••"
               />
+
+              <button
+                onClick={handleSubmit}
+                disabled={loading || demoLoading}
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-full bg-text py-3.5 font-semibold text-bg transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98] disabled:opacity-50"
+              >
+                {loading ? 'Signing in…' : 'Sign in'}
+              </button>
             </div>
 
-            <motion.button
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
-              onClick={handleSubmit}
-              disabled={loading || demoLoading}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl font-semibold shadow-md hover:shadow-lg transition disabled:opacity-50"
-            >
-              <LogIn size={18} />
-              {loading ? 'Signing in…' : 'Sign In'}
-            </motion.button>
+            <p className="mt-6 text-center text-sm text-text-muted">
+              No account?{' '}
+              <Link href="/register" className="font-semibold text-accent transition-colors hover:text-accent-soft">
+                Create one free
+              </Link>
+            </p>
           </div>
-
-          <p className="text-center text-gray-500 dark:text-gray-400 text-sm mt-6">
-            No account?{' '}
-            <Link href="/register" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">
-              Create one free
-            </Link>
-          </p>
         </div>
       </motion.div>
     </div>
+  );
+}
+
+function Field({
+  label,
+  type,
+  value,
+  onChange,
+  onEnter,
+  placeholder,
+}: {
+  label: string;
+  type: string;
+  value: string;
+  onChange: (v: string) => void;
+  onEnter: () => void;
+  placeholder?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-text-muted">
+        {label}
+      </span>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && onEnter()}
+        placeholder={placeholder}
+        className="w-full rounded-xl border border-hairline bg-bg-elev px-4 py-3 text-text outline-none transition-all duration-300 placeholder:text-text-faint focus:border-accent/50 focus:ring-2 focus:ring-accent/15"
+      />
+    </label>
   );
 }

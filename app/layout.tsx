@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Space_Grotesk, Plus_Jakarta_Sans, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 const geistMono = Geist_Mono({
@@ -13,8 +20,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FinFlow – Personal Finance Tracker",
-  description: "Track your income, expenses, and budgets with beautiful visualisations.",
+  title: "FinFlow — Personal Finance, Refined",
+  description:
+    "Track income, expenses and budgets with a calm, precise interface built for clarity.",
 };
 
 export default function RootLayout({
@@ -25,9 +33,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${spaceGrotesk.variable} ${jakarta.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
+        <div className="grain-overlay" aria-hidden />
         {children}
       </body>
     </html>

@@ -3,7 +3,16 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PlusCircle, Trash2, TrendingUp, TrendingDown, DollarSign, LogOut, Download, Sparkles } from 'lucide-react';
+import {
+  Plus,
+  Trash2,
+  ArrowUpRight,
+  ArrowDownRight,
+  Wallet,
+  LogOut,
+  ArrowDownToLine,
+  X,
+} from 'lucide-react';
 import { User } from '@/lib/auth';
 import toast, { Toaster } from 'react-hot-toast';
 import AnimatedNumber from '@/components/AnimatedNumber';
@@ -26,6 +35,10 @@ interface Budget {
 
 const EXPENSE_CATEGORIES = ['Food', 'Transport', 'Entertainment', 'Bills', 'Shopping', 'Health', 'Other'];
 const INCOME_CATEGORIES = ['Salary', 'Freelance', 'Investment', 'Other'];
+
+const fluid = [0.32, 0.72, 0, 1] as const;
+const inputCls =
+  'w-full rounded-xl border border-hairline bg-bg-elev px-4 py-3 text-sm text-text outline-none transition-all duration-300 placeholder:text-text-faint focus:border-accent/50 focus:ring-2 focus:ring-accent/15';
 
 export default function DashboardClient({ user }: { user: User }) {
   const router = useRouter();
@@ -221,235 +234,187 @@ export default function DashboardClient({ user }: { user: User }) {
   };
 
   return (
-    <div className="min-h-screen relative">
-      <Toaster position="top-right" />
+    <div className="relative min-h-[100dvh]">
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: 'var(--surface-2)',
+            color: 'var(--text)',
+            border: '1px solid var(--hairline)',
+            borderRadius: '12px',
+            fontSize: '14px',
+          },
+        }}
+      />
       <AnimatedBackground />
 
-      <div className="max-w-7xl mx-auto p-4 md:p-8 relative z-10">
-        {/* Header */}
+      <div className="relative z-10 mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+        {/* ---- Header ---- */}
         <motion.header
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8 flex justify-between items-center"
+          transition={{ duration: 0.7, ease: fluid }}
+          className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between"
         >
-          <div>
-            <motion.h1
-              className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              Finance Dashboard
-            </motion.h1>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="flex items-center gap-2"
-            >
-              <Sparkles className="text-yellow-500" size={20} />
-              <p className="text-lg text-gray-600 dark:text-gray-300">
-                Welcome back, <span className="font-bold text-blue-600">{user.name}</span>! 👋
-              </p>
-            </motion.div>
+          <div className="flex items-center gap-3.5">
+            <span className="grid h-11 w-11 place-items-center rounded-2xl border border-accent/30 bg-accent/15">
+              <Wallet size={20} strokeWidth={1.6} className="text-accent" />
+            </span>
+            <div>
+              <span className="eyebrow text-text-faint">Dashboard</span>
+              <h1 className="font-display text-2xl font-semibold tracking-tight text-text">
+                Welcome back, {user.name}
+              </h1>
+            </div>
           </div>
-          <div className="flex gap-3">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={exportToCSV}
-              className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transition"
-            >
-              <Download size={20} />
+
+          <div className="flex items-center gap-2.5">
+            <PillButton onClick={exportToCSV} icon={ArrowDownToLine}>
               Export
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleLogout}
-              className="flex items-center gap-2 bg-gradient-to-r from-red-500 to-pink-600 text-white px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transition"
-            >
-              <LogOut size={20} />
+            </PillButton>
+            <PillButton onClick={handleLogout} icon={LogOut} danger>
               Logout
-            </motion.button>
+            </PillButton>
           </div>
         </motion.header>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <GlassCard delay={0.1} className="p-6 relative overflow-hidden">
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-br from-green-400/10 to-emerald-400/10"
-              animate={{ opacity: [0.5, 0.8, 0.5] }}
-              transition={{ duration: 3, repeat: Infinity }}
-            />
-            <div className="relative flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-1 font-medium">Total Income</p>
-                <p className="text-3xl font-bold text-green-600">
-                  <AnimatedNumber value={stats.totalIncome} prefix="$" />
-                </p>
-              </div>
-              <motion.div
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.5 }}
-              >
-                <TrendingUp className="text-green-600" size={40} />
-              </motion.div>
-            </div>
-          </GlassCard>
-
-          <GlassCard delay={0.2} className="p-6 relative overflow-hidden">
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-br from-red-400/10 to-pink-400/10"
-              animate={{ opacity: [0.5, 0.8, 0.5] }}
-              transition={{ duration: 3, repeat: Infinity, delay: 1 }}
-            />
-            <div className="relative flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-1 font-medium">Total Expenses</p>
-                <p className="text-3xl font-bold text-red-600">
-                  <AnimatedNumber value={stats.totalExpenses} prefix="$" />
-                </p>
-              </div>
-              <motion.div
-                whileHover={{ rotate: -360 }}
-                transition={{ duration: 0.5 }}
-              >
-                <TrendingDown className="text-red-600" size={40} />
-              </motion.div>
-            </div>
-          </GlassCard>
-
-          <GlassCard delay={0.3} className="p-6 relative overflow-hidden">
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-purple-400/10"
-              animate={{ opacity: [0.5, 0.8, 0.5] }}
-              transition={{ duration: 3, repeat: Infinity, delay: 2 }}
-            />
-            <div className="relative flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-1 font-medium">Balance</p>
-                <p className={`text-3xl font-bold ${stats.balance >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
-                  <AnimatedNumber value={stats.balance} prefix="$" />
-                </p>
-              </div>
-              <motion.div
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <DollarSign className="text-blue-600" size={40} />
-              </motion.div>
-            </div>
-          </GlassCard>
+        {/* ---- Stat bento ---- */}
+        <div className="mb-5 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <StatCard
+            delay={0.05}
+            label="Total income"
+            value={stats.totalIncome}
+            tone="positive"
+            icon={ArrowUpRight}
+          />
+          <StatCard
+            delay={0.12}
+            label="Total expenses"
+            value={stats.totalExpenses}
+            tone="negative"
+            icon={ArrowDownRight}
+          />
+          <StatCard
+            delay={0.19}
+            label="Net balance"
+            value={stats.balance}
+            tone={stats.balance >= 0 ? 'accent' : 'negative'}
+            icon={Wallet}
+          />
         </div>
 
-        {/* Budget & Category Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <GlassCard delay={0.4} className="p-6">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-1">
-              Budget Overview
-            </h2>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-5">Spending vs limit this month</p>
-            <div className="space-y-4">
-              {budgets.map((budget, index) => {
+        {/* ---- Budget + Category ---- */}
+        <div className="mb-5 grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <GlassCard delay={0.1} className="p-7">
+            <div className="mb-6">
+              <span className="eyebrow text-accent">Budgets</span>
+              <h2 className="mt-2 font-display text-xl font-semibold tracking-tight text-text">
+                Budget overview
+              </h2>
+              <p className="mt-1 text-xs text-text-muted">Spending vs limit, this month</p>
+            </div>
+            <div className="space-y-5">
+              {budgets.map((budget) => {
                 const spent = stats.currentMonthExpensesByCategory[budget.category] || 0;
                 const percentage = budget.limit > 0 ? (spent / budget.limit) * 100 : 0;
+                const barColor =
+                  percentage > 100 ? 'var(--negative)' : percentage > 80 ? 'var(--warning)' : 'var(--accent)';
                 return (
-                  <motion.div
-                    key={budget.category}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.5 + index * 0.05 }}
-                  >
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                        {budget.category}
-                      </span>
+                  <div key={budget.category}>
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="text-sm font-medium text-text-soft">{budget.category}</span>
                       <input
                         type="number"
-                        placeholder="Set limit"
+                        placeholder="Limit"
                         value={budget.limit || ''}
                         onChange={(e) => updateBudget(budget.category, parseFloat(e.target.value) || 0)}
                         onBlur={(e) => saveBudget(budget.category, parseFloat(e.target.value) || 0)}
-                        className="w-24 px-3 py-1 text-sm border-2 border-gray-200 dark:border-gray-600 rounded-lg bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                        className="w-24 rounded-lg border border-hairline bg-bg-elev px-3 py-1.5 text-right text-sm text-text outline-none transition-all duration-300 placeholder:text-text-faint focus:border-accent/50 focus:ring-2 focus:ring-accent/15 tnum"
                       />
                     </div>
                     {budget.limit > 0 && (
                       <>
-                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
+                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
                           <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${Math.min(percentage, 100)}%` }}
-                            transition={{ duration: 1, ease: "easeOut" }}
-                            className={`h-3 rounded-full ${
-                              percentage > 100
-                                ? 'bg-gradient-to-r from-red-500 to-red-600'
-                                : percentage > 80
-                                ? 'bg-gradient-to-r from-yellow-500 to-orange-500'
-                                : 'bg-gradient-to-r from-green-500 to-emerald-500'
-                            }`}
+                            transition={{ duration: 1, ease: fluid }}
+                            className="h-full rounded-full"
+                            style={{ background: barColor, boxShadow: `0 0 12px ${barColor}66` }}
                           />
                         </div>
-                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                          ${spent.toFixed(2)} / ${budget.limit.toFixed(2)} ({percentage.toFixed(0)}%)
+                        <p className="mt-1.5 text-xs text-text-muted tnum">
+                          ${spent.toFixed(2)} / ${budget.limit.toFixed(2)} · {percentage.toFixed(0)}%
                           {percentage > 100 && (
-                            <span className="ml-2 text-red-500 font-semibold">⚠ Over budget!</span>
+                            <span className="ml-2 font-semibold text-negative">Over budget</span>
                           )}
                         </p>
                       </>
                     )}
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>
           </GlassCard>
 
-          <GlassCard delay={0.5} className="p-6">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-6">
-              Spending by Category
-            </h2>
-            <div className="space-y-3">
-              {Object.entries(stats.expensesByCategory)
-                .sort(([, a], [, b]) => b - a)
-                .map(([category, amount], index) => (
-                  <motion.div
-                    key={category}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.6 + index * 0.05 }}
-                    className="flex justify-between items-center p-3 rounded-lg bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-900/20 dark:to-purple-900/20 backdrop-blur-sm"
-                  >
-                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                      {category}
-                    </span>
-                    <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                      ${amount.toFixed(2)}
-                    </span>
-                  </motion.div>
-                ))}
+          <GlassCard delay={0.16} className="p-7">
+            <div className="mb-6">
+              <span className="eyebrow text-accent">Breakdown</span>
+              <h2 className="mt-2 font-display text-xl font-semibold tracking-tight text-text">
+                Spending by category
+              </h2>
+              <p className="mt-1 text-xs text-text-muted">All-time, highest first</p>
+            </div>
+            <div className="space-y-2">
+              {(() => {
+                const max = Math.max(...Object.values(stats.expensesByCategory), 1);
+                return Object.entries(stats.expensesByCategory)
+                  .sort(([, a], [, b]) => b - a)
+                  .map(([category, amount], index) => (
+                    <motion.div
+                      key={category}
+                      initial={{ opacity: 0, x: 16 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.04, ease: fluid }}
+                      className="relative overflow-hidden rounded-xl border border-hairline bg-white/[0.02] px-4 py-3"
+                    >
+                      <div
+                        className="absolute inset-y-0 left-0 bg-accent/[0.07]"
+                        style={{ width: `${(amount / max) * 100}%` }}
+                      />
+                      <div className="relative flex items-center justify-between">
+                        <span className="text-sm font-medium text-text-soft">{category}</span>
+                        <span className="text-sm font-semibold text-text tnum">${amount.toFixed(2)}</span>
+                      </div>
+                    </motion.div>
+                  ));
+              })()}
               {Object.keys(stats.expensesByCategory).length === 0 && (
-                <p className="text-sm text-gray-500 text-center py-8">No expenses yet</p>
+                <p className="py-10 text-center text-sm text-text-muted">No expenses yet</p>
               )}
             </div>
           </GlassCard>
         </div>
 
-        {/* Transactions */}
-        <GlassCard delay={0.6} className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              Recent Transactions
-            </h2>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+        {/* ---- Transactions ---- */}
+        <GlassCard delay={0.22} className="p-7">
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <span className="eyebrow text-accent">Activity</span>
+              <h2 className="mt-2 font-display text-xl font-semibold tracking-tight text-text">
+                Recent transactions
+              </h2>
+            </div>
+            <button
               onClick={() => setShowAddForm(!showAddForm)}
-              className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition"
+              className="group flex items-center gap-2 rounded-full bg-accent py-2.5 pl-4 pr-2.5 text-sm font-semibold text-bg transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.97]"
             >
-              <PlusCircle size={20} />
-              Add Transaction
-            </motion.button>
+              {showAddForm ? 'Close' : 'Add'}
+              <span className="grid h-6 w-6 place-items-center rounded-full bg-bg/15 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:rotate-90">
+                {showAddForm ? <X size={14} strokeWidth={2} /> : <Plus size={14} strokeWidth={2} />}
+              </span>
+            </button>
           </div>
 
           <AnimatePresence>
@@ -458,14 +423,13 @@ export default function DashboardClient({ user }: { user: User }) {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.5, ease: fluid }}
                 className="mb-6 overflow-hidden"
               >
-                <div className="p-6 bg-gradient-to-br from-blue-50/50 to-purple-50/50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl backdrop-blur-sm border border-white/20">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                        Type
-                      </label>
+                <div className="rounded-2xl border border-hairline bg-white/[0.02] p-6">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <label className="block">
+                      <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-text-muted">Type</span>
                       <select
                         value={formData.type}
                         onChange={(e) => setFormData({
@@ -473,163 +437,216 @@ export default function DashboardClient({ user }: { user: User }) {
                           type: e.target.value as 'income' | 'expense',
                           category: e.target.value === 'income' ? INCOME_CATEGORIES[0] : EXPENSE_CATEGORIES[0]
                         })}
-                        className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                        className={inputCls}
                       >
                         <option value="expense">Expense</option>
                         <option value="income">Income</option>
                       </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                        Amount
-                      </label>
+                    </label>
+                    <label className="block">
+                      <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-text-muted">Amount</span>
                       <input
                         type="number"
                         step="0.01"
                         min="0.01"
                         value={formData.amount}
                         onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                        className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                        className={inputCls}
                         placeholder="0.00"
                       />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                        Category
-                      </label>
+                    </label>
+                    <label className="block">
+                      <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-text-muted">Category</span>
                       <select
                         value={formData.category}
                         onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                        className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                        className={inputCls}
                       >
                         {(formData.type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES).map(cat => (
                           <option key={cat} value={cat}>{cat}</option>
                         ))}
                       </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                        Date
-                      </label>
+                    </label>
+                    <label className="block">
+                      <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-text-muted">Date</span>
                       <input
                         type="date"
                         value={formData.date}
                         onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                        className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                        className={inputCls}
                       />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                        Description
-                      </label>
+                    </label>
+                    <label className="block md:col-span-2">
+                      <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-text-muted">Description</span>
                       <input
                         type="text"
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
-                        placeholder="Enter description"
+                        className={inputCls}
+                        placeholder="What was it for?"
                       />
-                    </div>
+                    </label>
                   </div>
-                  <div className="flex gap-3 mt-6">
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                  <div className="mt-6 flex gap-3">
+                    <button
                       onClick={handleAddTransaction}
                       disabled={loading}
-                      className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition disabled:opacity-50"
+                      className="flex-1 rounded-full bg-accent py-3 text-sm font-semibold text-bg transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98] disabled:opacity-50"
                     >
-                      {loading ? 'Saving...' : 'Add Transaction'}
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      {loading ? 'Saving…' : 'Add transaction'}
+                    </button>
+                    <button
                       onClick={() => setShowAddForm(false)}
-                      className="px-6 py-3 rounded-xl font-semibold bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+                      className="rounded-full border border-hairline-strong bg-white/[0.03] px-6 py-3 text-sm font-medium text-text-soft transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-white/[0.06] active:scale-[0.98]"
                     >
                       Cancel
-                    </motion.button>
+                    </button>
                   </div>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Transaction List */}
-          <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+          {/* Transaction list */}
+          <div className="max-h-[500px] space-y-2.5 overflow-y-auto pr-1">
             {dataLoading ? (
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {[1, 2, 3].map(i => (
-                  <div key={i} className="h-20 rounded-xl bg-gray-200/60 dark:bg-gray-700/60 animate-pulse" />
+                  <div key={i} className="h-[68px] animate-pulse rounded-xl border border-hairline bg-white/[0.03]" />
                 ))}
               </div>
             ) : (
               <AnimatePresence>
-                {transactions.map((transaction, index) => (
-                  <motion.div
-                    key={transaction.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    transition={{ delay: index * 0.05 }}
-                    whileHover={{ scale: 1.01 }}
-                    className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-gray-50/80 to-blue-50/80 dark:from-gray-800/80 dark:to-blue-900/80 backdrop-blur-sm border border-white/20 shadow-sm hover:shadow-md transition"
-                  >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-1">
-                        <span className={`px-3 py-1 text-xs font-bold rounded-full ${
-                          transaction.type === 'income'
-                            ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white'
-                            : 'bg-gradient-to-r from-red-400 to-pink-500 text-white'
-                        }`}>
-                          {transaction.type}
+                {transactions.map((transaction, index) => {
+                  const isIncome = transaction.type === 'income';
+                  return (
+                    <motion.div
+                      key={transaction.id}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      transition={{ delay: Math.min(index * 0.03, 0.3), ease: fluid }}
+                      className="group flex items-center justify-between gap-4 rounded-xl border border-hairline bg-white/[0.02] px-4 py-3.5 transition-colors duration-300 hover:border-hairline-strong hover:bg-white/[0.04]"
+                    >
+                      <div className="flex min-w-0 items-center gap-3.5">
+                        <span
+                          className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${
+                            isIncome ? 'bg-accent/12 text-accent' : 'bg-negative/12 text-negative'
+                          }`}
+                        >
+                          {isIncome ? (
+                            <ArrowUpRight size={16} strokeWidth={1.8} />
+                          ) : (
+                            <ArrowDownRight size={16} strokeWidth={1.8} />
+                          )}
                         </span>
-                        <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
-                          {transaction.category}
-                        </span>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="truncate text-sm font-medium text-text">{transaction.description}</p>
+                            <span className="shrink-0 rounded-md border border-hairline bg-white/[0.03] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-text-muted">
+                              {transaction.category}
+                            </span>
+                          </div>
+                          <p className="mt-0.5 text-xs text-text-faint tnum">
+                            {new Date(transaction.date + 'T12:00:00').toLocaleDateString()}
+                          </p>
+                        </div>
                       </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{transaction.description}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                        {new Date(transaction.date + 'T12:00:00').toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <span className={`text-xl font-bold ${
-                        transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
-                      </span>
-                      <motion.button
-                        whileHover={{ scale: 1.1, rotate: 10 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => handleDeleteTransaction(transaction.id)}
-                        className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition"
-                      >
-                        <Trash2 size={18} />
-                      </motion.button>
-                    </div>
-                  </motion.div>
-                ))}
+                      <div className="flex items-center gap-3">
+                        <span className={`text-sm font-semibold tnum ${isIncome ? 'text-accent' : 'text-text'}`}>
+                          {isIncome ? '+' : '−'}${transaction.amount.toFixed(2)}
+                        </span>
+                        <button
+                          onClick={() => handleDeleteTransaction(transaction.id)}
+                          className="grid h-8 w-8 place-items-center rounded-lg text-text-faint opacity-60 transition-all duration-300 hover:bg-negative/15 hover:text-negative focus-visible:opacity-100 focus-visible:text-negative group-hover:opacity-100"
+                          aria-label="Delete transaction"
+                        >
+                          <Trash2 size={15} strokeWidth={1.6} />
+                        </button>
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </AnimatePresence>
             )}
             {!dataLoading && transactions.length === 0 && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-center py-12"
-              >
-                <motion.div
-                  animate={{ y: [0, -10, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  <Sparkles className="mx-auto text-gray-400 mb-4" size={48} />
-                </motion.div>
-                <p className="text-gray-500 text-lg">No transactions yet. Add your first one!</p>
-              </motion.div>
+              <div className="py-14 text-center">
+                <span className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-2xl border border-hairline bg-white/[0.03] text-text-faint">
+                  <Wallet size={22} strokeWidth={1.4} />
+                </span>
+                <p className="text-sm text-text-muted">No transactions yet — add your first one.</p>
+              </div>
             )}
           </div>
         </GlassCard>
       </div>
     </div>
+  );
+}
+
+/* ---------- Header pill button ---------- */
+function PillButton({
+  children,
+  onClick,
+  icon: Icon,
+  danger = false,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  icon: React.ComponentType<{ size?: number; strokeWidth?: number }>;
+  danger?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.97] ${
+        danger
+          ? 'border-negative/25 bg-negative/[0.06] text-negative hover:bg-negative/[0.12]'
+          : 'border-hairline-strong bg-white/[0.03] text-text-soft hover:bg-white/[0.07]'
+      }`}
+    >
+      <Icon size={15} strokeWidth={1.6} />
+      {children}
+    </button>
+  );
+}
+
+/* ---------- Stat card (double-bezel) ---------- */
+function StatCard({
+  label,
+  value,
+  tone,
+  icon: Icon,
+  delay,
+}: {
+  label: string;
+  value: number;
+  tone: 'positive' | 'negative' | 'accent';
+  icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>;
+  delay: number;
+}) {
+  const color =
+    tone === 'negative' ? 'text-negative' : 'text-accent';
+  const iconBg =
+    tone === 'negative' ? 'bg-negative/12 text-negative' : 'bg-accent/12 text-accent';
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24, filter: 'blur(8px)' }}
+      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+      transition={{ duration: 0.8, delay, ease: fluid }}
+      className="group bezel-shell"
+    >
+      <div className="bezel-core flex items-center justify-between p-6 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:-translate-y-1">
+        <div>
+          <span className="eyebrow text-text-faint">{label}</span>
+          <p className={`mt-2.5 font-display text-3xl font-semibold tracking-tight tnum ${color}`}>
+            <AnimatedNumber value={value} prefix="$" />
+          </p>
+        </div>
+        <span className={`grid h-11 w-11 place-items-center rounded-2xl ${iconBg}`}>
+          <Icon size={19} strokeWidth={1.6} />
+        </span>
+      </div>
+    </motion.div>
   );
 }

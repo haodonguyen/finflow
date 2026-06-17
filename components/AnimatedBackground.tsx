@@ -2,53 +2,49 @@
 
 import { motion } from 'framer-motion';
 
+/**
+ * Calm ambient field — a deep OLED base with a single restrained mint
+ * orb and a faint hairline grid. Animates only transform/opacity.
+ */
 export default function AnimatedBackground() {
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden">
-      {/* Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-purple-900" />
-      
-      {/* Animated Blobs */}
-      <motion.div
-        animate={{
-          scale: [1, 1.2, 1],
-          rotate: [0, 90, 0],
-          borderRadius: ["30% 70% 70% 30%", "70% 30% 30% 70%", "30% 70% 70% 30%"]
+    <div className="fixed inset-0 -z-10 overflow-hidden bg-bg">
+      {/* Faint structural grid */}
+      <div
+        className="absolute inset-0 opacity-[0.18]"
+        style={{
+          backgroundImage:
+            'linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)',
+          backgroundSize: '64px 64px',
+          maskImage:
+            'radial-gradient(ellipse 90% 70% at 50% 0%, #000 40%, transparent 100%)',
+          WebkitMaskImage:
+            'radial-gradient(ellipse 90% 70% at 50% 0%, #000 40%, transparent 100%)',
         }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear"
-        }}
-        className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-br from-blue-400/30 to-purple-400/30 blur-3xl"
       />
-      
+
+      {/* Single accent orb, breathing slowly */}
       <motion.div
-        animate={{
-          scale: [1.2, 1, 1.2],
-          rotate: [90, 0, 90],
-          borderRadius: ["70% 30% 30% 70%", "30% 70% 70% 30%", "70% 30% 30% 70%"]
-        }}
-        transition={{
-          duration: 15,
-          repeat: Infinity,
-          ease: "linear"
-        }}
-        className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-pink-400/30 to-indigo-400/30 blur-3xl"
+        aria-hidden
+        animate={{ scale: [1, 1.08, 1], opacity: [0.5, 0.72, 0.5] }}
+        transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute -top-40 left-1/2 -translate-x-1/2 h-[44rem] w-[44rem] rounded-full blur-[140px]"
+        style={{ background: 'radial-gradient(circle, var(--accent-glow), transparent 70%)' }}
       />
-      
+
+      {/* Cool counter-glow lower-left for depth */}
       <motion.div
-        animate={{
-          scale: [1, 1.3, 1],
-          x: [0, 100, 0],
-          y: [0, -50, 0],
-        }}
-        transition={{
-          duration: 25,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-br from-cyan-400/20 to-blue-400/20 blur-3xl"
+        aria-hidden
+        animate={{ scale: [1.05, 1, 1.05], opacity: [0.35, 0.5, 0.35] }}
+        transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute bottom-[-12rem] left-[-6rem] h-[34rem] w-[34rem] rounded-full blur-[150px]"
+        style={{ background: 'radial-gradient(circle, rgba(96,120,255,0.10), transparent 70%)' }}
+      />
+
+      {/* Vignette to seat the OLED black */}
+      <div
+        className="absolute inset-0"
+        style={{ background: 'radial-gradient(ellipse 80% 80% at 50% 40%, transparent 40%, rgba(0,0,0,0.55) 100%)' }}
       />
     </div>
   );
